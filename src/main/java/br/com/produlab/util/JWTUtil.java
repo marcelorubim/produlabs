@@ -19,12 +19,17 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Optional;
 
 @ApplicationScoped
 public class JWTUtil {
 
     @Inject
-    @ConfigProperty(name = "jwt.private.key.location")
+    @ConfigProperty(name = "jwt.private.key")
+    Optional<String> privateKeyContent;
+
+    @Inject
+    @ConfigProperty(name = "jwt.private.key.location", defaultValue = "/secrets/private.pem")
     String privateKeyLocation;
 
     public String generateTokenString(User user) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, ParseException, JOSEException {
@@ -44,13 +49,15 @@ public class JWTUtil {
         groups.add(user.userProfile.name().toLowerCase());
         jwtContent.put(Claims.groups.name(), groups);
 
-        PrivateKey pk = TokenUtils.readPrivateKey(privateKeyLocation);
+        PrivateKey pk = privateKeyContent.isPresent()
+                ? TokenUtils.decodePrivateKey(privateKeyContent.get().replace("\\n", "\n"))
+                : TokenUtils.readPrivateKey(privateKeyLocation);
 
         JWSSigner signer = new RSASSASigner(pk);
         JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwtContent);
         JWSAlgorithm alg = JWSAlgorithm.RS256;
 
-        JWSHeader jwtHeader = new Builder(alg).keyID(privateKeyLocation).type(JOSEObjectType.JWT).build();
+        JWSHeader jwtHeader = new Builder(alg).keyID("jwt-key").type(JOSEObjectType.JWT).build();
         SignedJWT signedJWT = new SignedJWT(jwtHeader, claimsSet);
         signedJWT.sign(signer);
         return signedJWT.serialize();
