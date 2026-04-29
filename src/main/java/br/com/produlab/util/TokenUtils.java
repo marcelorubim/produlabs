@@ -1,9 +1,12 @@
 package br.com.produlab.util;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -84,6 +87,17 @@ public class TokenUtils {
      */
     public static PrivateKey readPrivateKey(final String pemResName) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
         InputStream contentIS = TokenUtils.class.getResourceAsStream(pemResName);
+        if (contentIS == null) {
+            if (Files.exists(Paths.get(pemResName))) {
+                contentIS = new FileInputStream(pemResName);
+            } else {
+                throw new IOException(
+                    "Private key not found: '" + pemResName + "' — " +
+                    "configure 'jwt.private.key.location' in application.properties " +
+                    "pointing to a valid PKCS8 PEM file."
+                );
+            }
+        }
         byte[] tmp = new byte[4096];
         int length = contentIS.read(tmp);
         return decodePrivateKey(new String(tmp, 0, length, "UTF-8"));

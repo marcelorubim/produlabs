@@ -6,11 +6,15 @@
 mp.jwt.verify.publickey.location=META-INF/resources/public.pem
 mp.jwt.verify.issuer=br.com.prodlab
 quarkus.smallrye-jwt.enabled=true
+# Path to the RSA private key (PKCS8 PEM) used to sign tokens.
+# Can be a classpath resource (e.g. /private.pem) or an absolute filesystem path.
+# Generate with: openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -out /secrets/private.pem
+jwt.private.key.location=/secrets/private.pem
 
 # Database Configuration
 # Use environment variables: %env.DATASOURCE_URL%
-quarkus.datasource.url = jdbc:mariadb://localhost:3306/prodlab
-quarkus.datasource.driver = org.mariadb.jdbc.Driver
+quarkus.datasource.url = jdbc:mysql://localhost:3306/prodlab
+quarkus.datasource.driver = com.mysql.cj.jdbc.Driver
 quarkus.datasource.username = ${DB_USERNAME:prodlab}
 quarkus.datasource.password = ${DB_PASSWORD:CHANGE_ME}
 

@@ -7,6 +7,7 @@ import com.nimbusds.jose.JOSEException;
 import io.quarkus.security.UnauthorizedException;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +20,8 @@ import java.time.LocalDateTime;
 @RequestScoped
 public class AuthenticationService {
 
+    @Inject
+    JWTUtil jwtUtil;
 
     @Transactional
     public AuthenticationResponse authenticate(String email, String senha){
@@ -29,7 +32,7 @@ public class AuthenticationService {
                 return new AuthenticationResponse(user,null,true);
             }
             updateLoginData(user);
-            return new AuthenticationResponse(user,JWTUtil.generateTokenString(user));
+            return new AuthenticationResponse(user, jwtUtil.generateTokenString(user));
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException | ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
