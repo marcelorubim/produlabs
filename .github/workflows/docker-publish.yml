@@ -29,6 +29,14 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Create application.properties
+        run: cp src/main/resources/application.properties.example src/main/resources/application.properties
+
+      - name: Generate dummy JWT public key
+        run: |
+          mkdir -p src/main/resources/META-INF/resources
+          openssl genrsa 2048 | openssl rsa -pubout -out src/main/resources/META-INF/resources/public.pem
+
       - name: Build with Maven (skip tests)
         run: ./mvnw package -DskipTests
 
