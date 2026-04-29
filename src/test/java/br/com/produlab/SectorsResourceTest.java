@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -22,13 +23,16 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 @QuarkusTestResource(H2DatabaseTestResource.class)
 public class SectorsResourceTest {
+    @Inject
+    JWTUtil jwtUtil;
+
     private String token;
 
     @BeforeEach
     @Transactional
     void setupUser() {
         try {
-            this.token = JWTUtil.generateTokenString(User.findById(1L));
+            this.token = jwtUtil.generateTokenString(User.findById(1L));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }

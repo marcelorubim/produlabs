@@ -32,10 +32,14 @@ jobs:
       - name: Create application.properties
         run: cp src/main/resources/application.properties.example src/main/resources/application.properties
 
-      - name: Generate dummy JWT public key
+      - name: Generate JWT key pair
         run: |
           mkdir -p src/main/resources/META-INF/resources
-          openssl genrsa 2048 | openssl rsa -pubout -out src/main/resources/META-INF/resources/public.pem
+          openssl genrsa -out /tmp/rsa_key.pem 2048
+          openssl pkcs8 -topk8 -nocrypt -in /tmp/rsa_key.pem -out /tmp/private.pem
+          openssl rsa -in /tmp/rsa_key.pem -pubout -out src/main/resources/META-INF/resources/public.pem
+          # Expose private key as a single-line env var for Maven/tests
+          echo "JWT_PRIVATE_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n", $0}' /tmp/private.pem)" >> $GITHUB_ENV
 
       - name: Build with Maven (skip tests)
         run: ./mvnw package -DskipTests

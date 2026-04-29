@@ -33,6 +33,9 @@ import static org.hamcrest.CoreMatchers.is;
 @QuarkusTestResource(H2DatabaseTestResource.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserResourceTest {
+    @Inject
+    JWTUtil jwtUtil;
+
     private String token;
     private String tokenUserProfile;
 
@@ -40,8 +43,8 @@ public class UserResourceTest {
     @Transactional
     public void setupUser() {
         try {
-            this.token = JWTUtil.generateTokenString(User.findById(1L));
-            this.tokenUserProfile = JWTUtil.generateTokenString(User.findById(2L));
+            this.token = jwtUtil.generateTokenString(User.findById(1L));
+            this.tokenUserProfile = jwtUtil.generateTokenString(User.findById(2L));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }

@@ -9,6 +9,7 @@ import io.quarkus.test.h2.H2DatabaseTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.*;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -28,13 +29,16 @@ import static io.restassured.RestAssured.given;
 @QuarkusTestResource(H2DatabaseTestResource.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class HistoryResourceTest {
+    @Inject
+    JWTUtil jwtUtil;
+
     private String token;
 
     @BeforeEach
     @Transactional
     void setupUser() {
         try {
-            this.token = JWTUtil.generateTokenString(User.findById(1L));
+            this.token = jwtUtil.generateTokenString(User.findById(1L));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
