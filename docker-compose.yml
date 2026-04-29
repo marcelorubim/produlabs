@@ -1,0 +1,17 @@
+version: '3'
+services:
+  mariadb:
+    image: mariadb:10
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    ports:
+    - "3306:3306"
+    environment:
+    - MYSQL_DATABASE=prodlab
+    - MYSQL_USER=${DB_USER:-prodlab}
+    - MYSQL_PASSWORD=${DB_PASSWORD:-CHANGE_ME}
+    - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-CHANGE_ME}
+    volumes: 
+    #- prodlabdata:/var/lib/mysql
+    - ./sql:/docker-entrypoint-initdb.d
+volumes:
+  prodlabdata:

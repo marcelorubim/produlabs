@@ -1,0 +1,51 @@
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+# Security - Credentials and Secrets
+src/main/resources/application.properties
+src/test/resources/application.properties
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+.env
+.env.local
+.env.*.local
+
+# Docker secrets
+docker-compose.override.yml
+secrets/

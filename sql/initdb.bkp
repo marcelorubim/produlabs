@@ -1,0 +1,298 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    telephone VARCHAR(255) NOT NULL,
+    user_profile ENUM('ADMIN', 'MANAGER', 'USER') NOT NULL,
+    password_expired BOOL NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT,
+    deleted_at DATETIME,
+    deleted_by INT,
+    number_logins INT DEFAULT 0,
+    last_login DATETIME,
+    FOREIGN KEY (deleted_by) REFERENCES users(id),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    PRIMARY KEY (id)
+) default charset=utf8;
+
+CREATE TABLE IF NOT EXISTS laboratories (
+    id INT AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    initials VARCHAR(255),
+    region VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    PRIMARY KEY (id)
+) default charset=utf8;
+
+
+CREATE TABLE IF NOT EXISTS users_laboratories (
+    user_id INT NOT NULL,
+    laboratory_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (laboratory_id) REFERENCES laboratories(id),
+    PRIMARY KEY (user_id,laboratory_id)
+) default charset=utf8;
+
+CREATE TABLE IF NOT EXISTS sectors (
+    id INT AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    PRIMARY KEY (id)
+) default charset=utf8;
+
+CREATE TABLE IF NOT EXISTS exams (
+    id INT AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    sector_id INT NOT NULL,
+    code_sus VARCHAR(255),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT,
+    deleted_at DATETIME,
+    deleted_by INT,
+    FOREIGN KEY (deleted_by) REFERENCES users(id),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (sector_id) REFERENCES sectors(id),
+    PRIMARY KEY (id)
+) default charset=utf8;
+
+CREATE TABLE IF NOT EXISTS exams_history (
+    laboratory_id INT NOT NULL,
+    exam_id INT NOT NULL,
+    period DATE NOT NULL,
+    hospitalization_value INT NOT NULL DEFAULT 0,
+    ambulatory_value INT NOT NULL DEFAULT 0,
+    emergency_value INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    state ENUM('DRAFT', 'SENT') NOT NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (laboratory_id) REFERENCES laboratories(id),
+    FOREIGN KEY (exam_id) REFERENCES exams(id),
+    PRIMARY KEY(laboratory_id,exam_id,period)
+);
+
+CREATE TABLE IF NOT EXISTS patients_history (
+    laboratory_id INT NOT NULL,
+    period DATE NOT NULL,
+    patients_value INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    state ENUM('DRAFT', 'SENT') NOT NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (laboratory_id) REFERENCES laboratories(id),
+    PRIMARY KEY(laboratory_id,period)
+);
+
+CREATE TABLE IF NOT EXISTS history_state (
+    laboratory_id INT NOT NULL,
+    period DATE NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    modified_at DATETIME,
+    state ENUM('DRAFT', 'SENT') NOT NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (laboratory_id) REFERENCES laboratories(id),
+    PRIMARY KEY(laboratory_id,period)
+);
+
+set names utf8;
+INSERT INTO users(email,password,full_name,telephone,user_profile,password_expired) VALUES('marcelorubim@gmail.com','ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f','Marcelo Rubim','61999127077','ADMIN',false);
+INSERT INTO users(email,password,full_name,telephone,user_profile,password_expired) VALUES('marcelorubim1@gmail.com','ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f','Marcelo Rubim','61999127077','MANAGER',false);
+INSERT INTO users(email,password,full_name,telephone,user_profile,password_expired) VALUES('marcelorubim2@gmail.com','ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f','Marcelo Rubim','61999127077','USER',false);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRAN','Hospital Regional Asa Norte','CENTRAL',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRBz','HRBz','OESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRC','Hospital Regional da Ceilândia','OESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRGu','HRGu','CENTRO-SUL',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRL','HRL','LESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRG','HRG','SUL',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRPL','HRPL','NORTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRS','HRS','NORTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRSAM','HRSAM','SUDOESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HRT','HRT','SUDOESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HAB','HAB','CENTRAL',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('HMIB','HMIB','CENTRO-SUL',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('LRGu','LRGu','CENTRO-SUL',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('LRC','LRC','OESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('UMSSS','UMSSS','LESTE',1);
+INSERT INTO laboratories(initials,name,region,created_by) VALUES('UMST','UMST','SUDOESTE',1);
+INSERT INTO users_laboratories VALUES(2,1);
+INSERT INTO sectors(created_by,name) VALUES(1,'BIOQUÍMICA');
+INSERT INTO sectors(created_by,name) VALUES(1,'HEMATOLOGIA');
+INSERT INTO sectors(created_by,name) VALUES(1,'BACTERIOLOGIA');
+INSERT INTO sectors(created_by,name) VALUES(1,'URANÁLISE');
+INSERT INTO sectors(created_by,name) VALUES(1,'IMUNOLOGIA');
+INSERT INTO sectors(created_by,name) VALUES(1,'HORMÔNIOS');
+INSERT INTO sectors(created_by,name) VALUES(1,'PARASITOLOGIA');
+INSERT INTO sectors(created_by,name) VALUES(1,'OUTROS');
+INSERT INTO exams(sector_id,name) VALUES(1,'ÁCIDO ÚRICO');
+INSERT INTO exams(sector_id,name) VALUES(1,'ADA');
+INSERT INTO exams(sector_id,name) VALUES(1,'ALBUMINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'AMILASE');
+INSERT INTO exams(sector_id,name) VALUES(1,'BILIRRUBINA DIRETA');
+INSERT INTO exams(sector_id,name) VALUES(1,'BILIRRUBINA TOTAL');
+INSERT INTO exams(sector_id,name) VALUES(1,'CÁLCIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'CK - MB');
+INSERT INTO exams(sector_id,name) VALUES(1,'CLEARANCE DE CREATININA');
+INSERT INTO exams(sector_id,name) VALUES(1,'CLORO');
+INSERT INTO exams(sector_id,name) VALUES(1,'COLESTEROL HDL');
+INSERT INTO exams(sector_id,name) VALUES(1,'COLESTEROL LDL');
+INSERT INTO exams(sector_id,name) VALUES(1,'COLESTEROL TOTAL');
+INSERT INTO exams(sector_id,name) VALUES(1,'CPK');
+INSERT INTO exams(sector_id,name) VALUES(1,'CREATININA');
+INSERT INTO exams(sector_id,name) VALUES(1,'DESIDROGENASE LÁCTICA (LDH)');
+INSERT INTO exams(sector_id,name) VALUES(1,'ELETROFORESE DE HEMOGLOBINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'ELETROFORESE DE PROTEÍNAS');
+INSERT INTO exams(sector_id,name) VALUES(1,'FERRO SÉRICO TOTAL');
+INSERT INTO exams(sector_id,name) VALUES(1,'FOSFATASE ALCALINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'FÓSFORO');
+INSERT INTO exams(sector_id,name) VALUES(1,'GAMA GLUTAMIL TRANSFERASE');
+INSERT INTO exams(sector_id,name) VALUES(1,'GLICOSE');
+INSERT INTO exams(sector_id,name) VALUES(1,'GLICOSE PÓS PRANDIAL');
+INSERT INTO exams(sector_id,name) VALUES(1,'HEMOGLOBINA FETAL, A2 E VARIANTES');
+INSERT INTO exams(sector_id,name) VALUES(1,'HEMOGLOBINA GLICADA (HPLC)');
+INSERT INTO exams(sector_id,name) VALUES(1,'LACTATO');
+INSERT INTO exams(sector_id,name) VALUES(1,'LIPASE');
+INSERT INTO exams(sector_id,name) VALUES(1,'LIPIDOGRAMA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, ÁCIDO ÚRICO');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, ALBUMINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, AMILASE');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, BILIRRUBINA DIRETA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, BILIRRUBINA TOTAL');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, CLORO');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, COLESTEROL');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, CREATININA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, FOSFATASE ALCALINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, GGT');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, GLICOSE');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, LDH');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, PROTEÍNA TOTAL');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, PROTEÍNAS');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, TGO');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, TGP');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, TRIGLICERÍDEOS');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUIDOS CORPORAIS, UREIA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUOR, ALBUMINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUOR, CLORETO');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUOR, DHL');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUOR, GLICOSE');
+INSERT INTO exams(sector_id,name) VALUES(1,'LÍQUOR, PROTEÍNA');
+INSERT INTO exams(sector_id,name) VALUES(1,'MAGNÉSIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'POTÁSSIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'PROTEÍNAS TOTAIS');
+INSERT INTO exams(sector_id,name) VALUES(1,'SÓDIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'TRANSAMINASE OXALACÉTICA (TGO)');
+INSERT INTO exams(sector_id,name) VALUES(1,'TRANSAMINASE PIRÚVICA (TGP)');
+INSERT INTO exams(sector_id,name) VALUES(1,'TRIGLICERÍDEOS');
+INSERT INTO exams(sector_id,name) VALUES(1,'TTOG');
+INSERT INTO exams(sector_id,name) VALUES(1,'UIBC');
+INSERT INTO exams(sector_id,name) VALUES(1,'UREIA');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, ÁCIDO ÚRICO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, AMILASE');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, CÁLCIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, CLORO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, CREATININA');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, FÓSFORO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, MAGNÉSIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, MICROALBUMINA');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, POTÁSSIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, PROTEÍNAS');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, SÓDIO');
+INSERT INTO exams(sector_id,name) VALUES(1,'URINA, UREIA');
+INSERT INTO exams(sector_id,name) VALUES(1,'VITAMINA B12');
+INSERT INTO exams(sector_id,name) VALUES(2,'HEMOGRAMA COMPLETO');
+INSERT INTO exams(sector_id,name) VALUES(2,'CONTAGEM DE RETICULÓCITOS');
+INSERT INTO exams(sector_id,name) VALUES(2,'FIBRINOGÊNIO');
+INSERT INTO exams(sector_id,name) VALUES(2,'LÍQ. CORP., CONTAGEM ESPECÍFICA DE CÉLULAS');
+INSERT INTO exams(sector_id,name) VALUES(2,'LÍQ. CORP., CONTAGEM GLOBAL DE CÉLULAS');
+INSERT INTO exams(sector_id,name) VALUES(2,'LÍQUOR, CARACTERES FÍSICOS');
+INSERT INTO exams(sector_id,name) VALUES(2,'LÍQUOR, CONTAGEM ESPECÍFICA DE CÉLULAS');
+INSERT INTO exams(sector_id,name) VALUES(2,'LÍQUOR, CONTAGEM GLOBAL DE CÉLULAS');
+INSERT INTO exams(sector_id,name) VALUES(2,'PROVA DO LAÇO');
+INSERT INTO exams(sector_id,name) VALUES(2,'TAP');
+INSERT INTO exams(sector_id,name) VALUES(2,'TESTE DE FALCIZAÇÃO');
+INSERT INTO exams(sector_id,name) VALUES(2,'TTPA');
+INSERT INTO exams(sector_id,name) VALUES(2,'VHS');
+INSERT INTO exams(sector_id,name) VALUES(3,'ANTIBIOGRAMA');
+INSERT INTO exams(sector_id,name) VALUES(3,'BACILOSCOPIA Hanseniase');
+INSERT INTO exams(sector_id,name) VALUES(3,'BACILOSCOPIA TB');
+INSERT INTO exams(sector_id,name) VALUES(3,'BACTERIOSCOPIA');
+INSERT INTO exams(sector_id,name) VALUES(3,'CULTURA GERAL');
+INSERT INTO exams(sector_id,name) VALUES(3,'ESPERMOGRAMA');
+INSERT INTO exams(sector_id,name) VALUES(3,'HEMOCULTURA');
+INSERT INTO exams(sector_id,name) VALUES(3,'LÍQUOR, EXAME DIRETO FUNGOS');
+INSERT INTO exams(sector_id,name) VALUES(3,'TUBERCULOSE GENEXPERT');
+INSERT INTO exams(sector_id,name) VALUES(3,'UROCULTURA');
+INSERT INTO exams(sector_id,name) VALUES(4,'EAS');
+INSERT INTO exams(sector_id,name) VALUES(4,'TIG (URINA)');
+INSERT INTO exams(sector_id,name) VALUES(5,'ALFA-GLICOPROTEÍNA ÁCIDA');
+INSERT INTO exams(sector_id,name) VALUES(5,'ASLO');
+INSERT INTO exams(sector_id,name) VALUES(5,'C3');
+INSERT INTO exams(sector_id,name) VALUES(5,'C4');
+INSERT INTO exams(sector_id,name) VALUES(5,'CHAGAS, HEMAGLUTINAÇÃO');
+INSERT INTO exams(sector_id,name) VALUES(5,'CISTATINA C');
+INSERT INTO exams(sector_id,name) VALUES(5,'CITOMEGALOVÍRUS IGG');
+INSERT INTO exams(sector_id,name) VALUES(5,'CITOMEGALOVÍRUS IGM');
+INSERT INTO exams(sector_id,name) VALUES(5,'CKMB MASSA');
+INSERT INTO exams(sector_id,name) VALUES(5,'FAN');
+INSERT INTO exams(sector_id,name) VALUES(5,'FATOR REUMATOIDE');
+INSERT INTO exams(sector_id,name) VALUES(5,'IGA');
+INSERT INTO exams(sector_id,name) VALUES(5,'IGE');
+INSERT INTO exams(sector_id,name) VALUES(5,'IGG');
+INSERT INTO exams(sector_id,name) VALUES(5,'IGM');
+INSERT INTO exams(sector_id,name) VALUES(5,'MIOGLOBINA');
+INSERT INTO exams(sector_id,name) VALUES(5,'PCR ULTRASSENSÍVEL');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO DE ZIKA');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO DENGUE IgG/IgM');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO DENGUE - NS1');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO HBSAG');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO HCV');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO HIV');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO LEISHMANIOSE');
+INSERT INTO exams(sector_id,name) VALUES(5,'TESTE RÁPIDO TREPONEMA PALLIDUM');
+INSERT INTO exams(sector_id,name) VALUES(5,'TOXOPLASMOSE IGG');
+INSERT INTO exams(sector_id,name) VALUES(5,'TOXOPLASMOSE IGM');
+INSERT INTO exams(sector_id,name) VALUES(5,'TPHA');
+INSERT INTO exams(sector_id,name) VALUES(5,'TROPONINA “I” OU “T”');
+INSERT INTO exams(sector_id,name) VALUES(5,'VDRL');
+INSERT INTO exams(sector_id,name) VALUES(6,'ALFAFETOPROTEÍNA (AFP)');
+INSERT INTO exams(sector_id,name) VALUES(6,'ANTICORPOS ANTIPEROXIDASE');
+INSERT INTO exams(sector_id,name) VALUES(6,'ANTÍGENO CARCINOEMBRIONÁRIO (CEA)');
+INSERT INTO exams(sector_id,name) VALUES(6,'ANTI-TIREOGLOBULINA');
+INSERT INTO exams(sector_id,name) VALUES(6,'BETA HCG');
+INSERT INTO exams(sector_id,name) VALUES(6,'CA 125');
+INSERT INTO exams(sector_id,name) VALUES(6,'CA 15. 3');
+INSERT INTO exams(sector_id,name) VALUES(6,'CA 19.9');
+INSERT INTO exams(sector_id,name) VALUES(6,'CORTISOL');
+INSERT INTO exams(sector_id,name) VALUES(6,'ESTRADIOL');
+INSERT INTO exams(sector_id,name) VALUES(6,'FERRITINA');
+INSERT INTO exams(sector_id,name) VALUES(6,'HORMÔNIO DO CRESCIMENTO (GH)');
+INSERT INTO exams(sector_id,name) VALUES(6,'HORMÔNIO FOLÍCULO ESTIMULANTE (FSH)');
+INSERT INTO exams(sector_id,name) VALUES(6,'HORMÔNIO LUTEINIZANTE (LH)');
+INSERT INTO exams(sector_id,name) VALUES(6,'HORMÔNIO TÍREOESTIMULANTE (TSH)');
+INSERT INTO exams(sector_id,name) VALUES(6,'IGF-1 (SOMATOMEDINA)');
+INSERT INTO exams(sector_id,name) VALUES(6,'INSULINA');
+INSERT INTO exams(sector_id,name) VALUES(6,'PARATORMÔNIO - PTH');
+INSERT INTO exams(sector_id,name) VALUES(6,'PROGESTERONA');
+INSERT INTO exams(sector_id,name) VALUES(6,'PROLACTINA');
+INSERT INTO exams(sector_id,name) VALUES(6,'PROSTÁTICO ESPECÍFICO (PSA)');
+INSERT INTO exams(sector_id,name) VALUES(6,'PSA LIVRE');
+INSERT INTO exams(sector_id,name) VALUES(6,'SDHEA');
+INSERT INTO exams(sector_id,name) VALUES(6,'TESTOSTERONA');
+INSERT INTO exams(sector_id,name) VALUES(6,'TIREOGLOBULINA');
+INSERT INTO exams(sector_id,name) VALUES(6,'TIROXINA LIVRE (T4LIVRE)');
+INSERT INTO exams(sector_id,name) VALUES(6,'VITAMINA 25 OH D');
+INSERT INTO exams(sector_id,name) VALUES(7,'EXAME PARASITOLÓGICO DE FEZES');
+INSERT INTO exams(sector_id,name) VALUES(7,'LEUCÓCITOS NAS FEZES');
+INSERT INTO exams(sector_id,name) VALUES(7,'PESQUISA DE GORDURA NAS FEZES');
+INSERT INTO exams(sector_id,name) VALUES(7,'PESQUISA DE SANGUE OCULTO');
+INSERT INTO exams(sector_id,name) VALUES(7,'PH FECAL');
+INSERT INTO exams(sector_id,name) VALUES(8,'TESTE RÁPIDO DE TROPONINA');
+
+
+CREATE VIEW IF NOT EXISTS exams_history_summary AS SELECT period,exam_id,SUM(hospitalization_value) as hospitalization_value,SUM(ambulatory_value) as ambulatory_value,SUM(emergency_value) as emergency_value FROM exams_history WHERE state = 'SENT' GROUP BY period,exam_id;
